@@ -1,9 +1,9 @@
 # Your own product list: it names your repositories and local paths.
-products.yaml
+/products.yaml
 # Neo4j credentials
-.env
+/.env
 # Extracted graphs and cloned sources: they contain your code's structure.
-out/
+/out/
 .cache/
 __pycache__/
 *.egg-info/
