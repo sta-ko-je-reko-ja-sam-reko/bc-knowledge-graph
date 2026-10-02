@@ -1,0 +1,26 @@
+asyncapi: 3.0.0
+info:
+  title: Widget events
+  version: 1.0.0
+channels:
+  widget.changed:
+    address: widget.changed
+    messages:
+      widgetChanged:
+        $ref: '#/components/messages/WidgetChanged'
+  widget.deleted:
+    address: widget.deleted
+    messages:
+      widgetDeleted:
+        $ref: '#/components/messages/WidgetDeleted'
+components:
+  messages:
+    WidgetChanged:
+      payload: { $ref: '#/components/schemas/WidgetRef' }
+    WidgetDeleted:
+      payload: { $ref: '#/components/schemas/WidgetRef' }
+  schemas:
+    WidgetRef:
+      type: object
+      properties:
+        id: { type: string }

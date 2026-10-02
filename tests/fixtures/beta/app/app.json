@@ -1,0 +1,8 @@
+{
+  "id": "33333333-3333-3333-3333-333333333333",
+  "name": "Beta",
+  "publisher": "Example",
+  "version": "2.0.0.0",
+  "idRanges": [{ "from": 50000, "to": 50099 }],
+  "dependencies": []
+}

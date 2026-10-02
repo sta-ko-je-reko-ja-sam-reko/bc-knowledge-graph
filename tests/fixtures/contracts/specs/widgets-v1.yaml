@@ -1,0 +1,34 @@
+openapi: 3.0.3
+info:
+  title: Widgets
+  version: 1.0.0
+paths:
+  /widgets:
+    get:
+      operationId: listWidgets
+      responses:
+        '200':
+          description: Widgets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetPage'
+  /widgets/{id}:
+    delete:
+      operationId: deleteWidget
+      responses:
+        '204': { description: Deleted }
+components:
+  schemas:
+    WidgetPage:
+      type: object
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Widget' }
+    Widget:
+      type: object
+      required: [id]
+      properties:
+        id: { type: string }
+        title: { type: string, description: Display name. }

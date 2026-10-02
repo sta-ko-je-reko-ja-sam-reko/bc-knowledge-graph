@@ -1,0 +1,33 @@
+# Copy to products.yaml (gitignored) and list your own products.
+# A repository is read from a local `path` (relative to this file) or cloned from `github` into .cache/repos.
+
+products:
+  - name: Shop
+    repos:
+      - name: shop-platform
+        github: your-account/shop-platform
+        contracts: [packages/contracts]    # folders holding OpenAPI / AsyncAPI files
+      - name: shop-integration
+        github: your-account/shop-integration
+      - name: shop-connector-bc
+        path: ../shop-connector-bc           # AL apps are found through their app.json
+  - name: Warehouse
+    repos:
+      - name: warehouse-bc
+        path: ../warehouse-bc
+        scan: true                           # also search text files for operation IDs and channels
+
+# Optional: the src folder of features whose folder cannot be guessed from their name.
+feature_folders:
+  "Warehouse:FEAT-RF-001": Handhelds
+
+# Optional: which AL API object serves a contract operation, and which API field each property maps to.
+bindings:
+  - contract: shop-api
+    operation: listCategories
+    al: page:SHP API Category
+    schema: Category
+    properties:
+      id: code
+      parentId: parentCategory
+      name: description
