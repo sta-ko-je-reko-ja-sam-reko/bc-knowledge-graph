@@ -244,10 +244,10 @@ def overlap_matrix(rows, owners):
 
 
 def render(view, title='Business Central knowledge graph', group_by='product', source=None, graph_url=None,
-           intro=None, outro=None, extra_products=None):
+           intro=None, outro=None, extra_products=None, skip=()):
     """The whole page. `intro` is an HTML fragment shown under the title instead of the default lead; `outro` an
     HTML fragment shown as the last section (for example a call to action); `extra_products` HTML cards added after
-    the product cards (for example a private product that is not in the graph)."""
+    the product cards (for example a private product that is not in the graph); `skip` question ids to leave out."""
     info = overview(view)
     owner_label = {'owners': 'products' if group_by == 'product' else 'apps',
                    'touches': 'by ' + ('product' if group_by == 'product' else 'app')}
@@ -257,7 +257,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
     has_contracts = info['totals']['contracts'] > 0
     for q in QUESTIONS:
         required = [p for p in q.params if p != 'group_by']
-        if required or (q.id.startswith('contract') and not has_contracts):
+        if required or q.id in skip or (q.id.startswith('contract') and not has_contracts):
             continue
         rows = q.run(view, group_by=group_by) if 'group_by' in q.params else q.run(view)
         if q.kind == 'check':

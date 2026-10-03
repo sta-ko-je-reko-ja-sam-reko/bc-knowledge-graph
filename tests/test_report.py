@@ -52,3 +52,10 @@ def test_report_outro_with_own_sections_feeds_the_contents():
     page = render(view, outro='<section id="about"><h2>About</h2></section><section id="contact"><h2>Contact</h2></section>')
     assert '<li><a href="#about">About</a></li>' in page and '<li><a href="#contact">Contact</a></li>' in page
     assert 'id="next"' not in page  # not wrapped again
+
+
+def test_report_skips_questions():
+    view = View(extract(FIXTURES / 'products.yaml')[0])
+    assert 'id="q-features-without-tests"' in render(view)
+    page = render(view, skip=['features_without_tests'])
+    assert 'id="q-features-without-tests"' not in page and 'Features without tests' not in page
