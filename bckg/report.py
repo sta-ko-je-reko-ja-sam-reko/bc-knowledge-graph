@@ -167,14 +167,16 @@ DEFAULT_INTRO = """<p class="lead">This page is built from the AL source of the 
 objects and events they touch, their features and tests, and the API contracts around them. It answers, for all of
 the apps at once, the questions that are hard to answer one repository at a time.</p>"""
 
-LEGEND = """<section class="legend" aria-label="How to read this page">
+def legend(any_found):
+    found = ('<li><span class="badge warn">3 found</span> A check found something to fix or review; the rows below '
+             'say what.</li>\n' if any_found else '')
+    return ("""<section class="legend" aria-label="How to read this page">
 <h2>How to read this page</h2>
 <ul>
 <li><span class="badge ok">✓ none found</span> A check passed: nothing that would stop the apps from working together.</li>
-<li><span class="badge warn">3 found</span> A check found something to fix or review; the rows below say what.</li>
-<li><span class="badge info">12</span> Not a problem in itself: places where products meet, worth testing together.</li>
+%s<li><span class="badge info">12</span> Not a problem in itself: places where products meet, worth testing together.</li>
 </ul>
-</section>"""
+</section>""" % found)
 
 
 def plural(count, noun):
@@ -185,7 +187,9 @@ def ranges(values, label=''):
     return ''.join('<span class="chip">%s%s</span>' % (esc(label), esc(r)) for r in values or [])
 
 
-def product_cards(info, extra=None):
+def product_cards(info, extra=None, hide_coverage=False):
+    """One card per product. With hide_coverage the cards show what exists (objects, features, tests where there are
+    some) and leave out test coverage and missing test apps."""
     cards = []
     for product in info['products']:
         repos = ' '.join('<a class="repo" href="https://github.com/%s">%s</a>' % (esc(r['github']), esc(r['repo']))
@@ -194,23 +198,34 @@ def product_cards(info, extra=None):
         apps = []
         for a in product['apps']:
             test_app = a.get('testApp')
-            coverage = ('%d of %d tested' % (a['featuresTested'], a['features']) if a['features'] else 'none documented')
-            if a['features'] and a['featuresTested'] == a['features']:
-                state = 'ok'
-            elif a['features'] and a['featuresTested'] == 0:
-                state = 'warn'
+            stats = ['<div><dt>Objects</dt><dd>%s</dd></div>' % f"{a['objects']:,}"]
+            if a['tests'] or not hide_coverage:
+                stats.append('<div><dt>Tests</dt><dd>%s</dd></div>' % f"{a['tests']:,}")
+            if hide_coverage:
+                if a['features']:
+                    stats.append('<div><dt>Features</dt><dd>%s</dd></div>' % a['features'])
             else:
-                state = 'info' if a['features'] else 'muted'
+                coverage = ('%d of %d tested' % (a['featuresTested'], a['features']) if a['features']
+                            else 'none documented')
+                if a['features'] and a['featuresTested'] == a['features']:
+                    state = 'ok'
+                elif a['features'] and a['featuresTested'] == 0:
+                    state = 'warn'
+                else:
+                    state = 'info' if a['features'] else 'muted'
+                stats.append('<div><dt>Features</dt><dd>%s <span class="pill %s">%s</span></dd></div>'
+                             % (a['features'], state, coverage))
+            if test_app:
+                note = '<p class="test-app">Tests in <i>%s</i> (%s)</p>' % (
+                    esc(test_app['app']), plural(test_app['objects'], 'codeunit'))
+            else:
+                note = '' if hide_coverage else '<p class="test-app">No test app</p>'
             apps.append(
                 '<div class="app-card"><div class="app-head"><b>%s</b><span class="version">%s</span></div>'
-                '<div class="ranges">%s%s</div>'
-                '<dl class="stats"><div><dt>Objects</dt><dd>%s</dd></div><div><dt>Tests</dt><dd>%s</dd></div>'
-                '<div><dt>Features</dt><dd>%s <span class="pill %s">%s</span></dd></div></dl>%s</div>' % (
+                '<div class="ranges">%s%s</div><dl class="stats">%s</dl>%s</div>' % (
                     esc(a['app']), esc('v' + a['version'] if a.get('version') else ''),
                     ranges(a['idRanges'], 'app '), ranges(test_app['idRanges'], 'tests ') if test_app else '',
-                    f"{a['objects']:,}", f"{a['tests']:,}", a['features'], state, coverage,
-                    '<p class="test-app">Tests in <i>%s</i> (%s)</p>' % (esc(test_app['app']), plural(test_app['objects'], 'codeunit'))
-                    if test_app else '<p class="test-app">No test app</p>'))
+                    ''.join(stats), note))
         contracts = ''.join('<span class="chip">%s</span>' % esc(c) for c in product['contracts'])
         cards.append('<article class="product"><h3>%s</h3>%s<p class="repos">%s</p>%s%s</article>' % (
             esc(product['product']),
@@ -244,14 +259,15 @@ def overlap_matrix(rows, owners):
 
 
 def render(view, title='Business Central knowledge graph', group_by='product', source=None, graph_url=None,
-           intro=None, outro=None, extra_products=None, skip=()):
+           intro=None, outro=None, extra_products=None, skip=(), hide_coverage=False):
     """The whole page. `intro` is an HTML fragment shown under the title instead of the default lead; `outro` an
     HTML fragment shown as the last section (for example a call to action); `extra_products` HTML cards added after
-    the product cards (for example a private product that is not in the graph); `skip` question ids to leave out."""
+    the product cards (for example a private product that is not in the graph); `skip` question ids to leave out; `hide_coverage` leaves test coverage off the product cards and totals."""
     info = overview(view)
     owner_label = {'owners': 'products' if group_by == 'product' else 'apps',
                    'touches': 'by ' + ('product' if group_by == 'product' else 'app')}
-    sections = [product_cards(info, extra_products)]
+    sections = [product_cards(info, extra_products, hide_coverage)]
+    any_found = False
     nav = ['<li><a href="#products">The products</a></li>']
 
     has_contracts = info['totals']['contracts'] > 0
@@ -263,6 +279,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
         if q.kind == 'check':
             badge = ('<span class="badge ok">✓ none found</span>' if not rows else
                      '<span class="badge warn">%d found</span>' % len(rows))
+            any_found = any_found or bool(rows)
         else:
             badge = '<span class="badge info">%d</span>' % len(rows)
         if q.id == 'product_overlap' and rows:
@@ -300,6 +317,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
         f'{v:,}' if isinstance(v, int) else esc(v), esc(k)) for k, v in (
         ('products', len(info['products'])), ('apps', totals['apps']), ('own objects', totals['objects']),
         ('standard objects touched', totals['standardObjectsTouched']),
+        ('features', totals['features']) if hide_coverage else
         ('features tested', '%d / %d' % (totals['featuresTested'], totals['features'])),
         ('test procedures', totals['testProcedures'])))
     stamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
@@ -332,4 +350,4 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
 </main>
 </body>
 </html>
-""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, cards, LEGEND, ''.join(nav), '\n'.join(sections))
+""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, cards, legend(any_found), ''.join(nav), '\n'.join(sections))

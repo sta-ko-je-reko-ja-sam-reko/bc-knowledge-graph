@@ -59,3 +59,14 @@ def test_report_skips_questions():
     assert 'id="q-features-without-tests"' in render(view)
     page = render(view, skip=['features_without_tests'])
     assert 'id="q-features-without-tests"' not in page and 'Features without tests' not in page
+
+
+def test_report_hide_coverage_and_legend_follows_findings():
+    view = View(extract(FIXTURES / 'products.yaml')[0])
+    full = render(view)
+    assert 'of 1 tested' in full and 'A check found something' in full  # Alpha and Beta collide in the fixtures
+    portfolio = render(view, hide_coverage=True, skip=['id_collisions', 'field_collisions', 'features_without_tests',
+                                                       'contract_coverage'])
+    assert 'of 1 tested' not in portfolio and 'features tested' not in portfolio and 'No test app' not in portfolio and 'none documented' not in portfolio
+    assert 'A check found something' not in portfolio  # no check on the page found anything
+    assert '<dt>Tests</dt><dd>0</dd>' not in portfolio
