@@ -1,0 +1,28 @@
+# The public showcase: Business Central apps whose repositories are public.
+# Built nightly by .github/workflows/showcase.yml and published to https://graph.dmom.ai
+products:
+  - name: Commerce
+    repos:
+      - name: commerce-platform
+        github: sta-ko-je-reko-ja-sam-reko/commerce-platform
+        contracts: [packages/contracts]
+      - name: commerce-integration
+        github: sta-ko-je-reko-ja-sam-reko/commerce-integration
+      - name: commerce-connector-bc
+        github: sta-ko-je-reko-ja-sam-reko/commerce-connector-bc
+  - name: Warehouse Advanced
+    repos:
+      - name: warehouse-advanced-bc
+        github: sta-ko-je-reko-ja-sam-reko/warehouse-advanced-bc
+  - name: Construction Management
+    repos:
+      - name: bc-construction-management
+        github: sta-ko-je-reko-ja-sam-reko/bc-construction-management
+  - name: CRM
+    repos:
+      - name: bc-native-crm
+        github: sta-ko-je-reko-ja-sam-reko/bc-native-crm
+  - name: Invoice Forge
+    repos:
+      - name: bc-invoice-forge
+        github: sta-ko-je-reko-ja-sam-reko/bc-invoice-forge

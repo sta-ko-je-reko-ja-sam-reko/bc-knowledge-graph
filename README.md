@@ -19,6 +19,9 @@ It answers questions that are hard to answer by reading repositories one at a ti
 
 The graph model is described in [docs/graph-model.md](docs/graph-model.md).
 
+**See it live:** [graph.dmom.ai](https://graph.dmom.ai) — the report for a set of public Business Central apps,
+rebuilt every night.
+
 ## How it works
 
 `bckg extract` reads the repositories listed in `products.yaml` and writes `out/graph.json`:
@@ -38,19 +41,26 @@ The graph model is described in [docs/graph-model.md](docs/graph-model.md).
   contract properties and API page fields, is declared in `products.yaml`, because an integration layer
   usually renames fields on purpose.
 
-`bckg load` replaces the content of the Neo4j database with that file. The graph is derived data, so
-every load is a full rebuild.
+Everything after that works from `out/graph.json`, without Neo4j:
+
+- `bckg ask` answers one question in the terminal,
+- `bckg report` writes one self-contained HTML page that answers every question,
+- `bckg mcp` serves the questions to Claude (or any MCP client), so you can ask in plain language.
+
+Each question is implemented once in [`bckg/questions.py`](bckg/questions.py) and has a Cypher twin in
+`queries/` for Neo4j Browser; a test checks that both return the same rows. Neo4j is optional: load the graph
+with `bckg load` to explore it visually or to ask free-form Cypher questions.
 
 ## Setup
 
-Requires Python 3.10+ and Neo4j 5.23 or later.
+Requires Python 3.10+. Neo4j 5.23 or later is optional.
 
 ```sh
 python -m venv .venv
-.venv/Scripts/pip install -e ".[dev]"      # Windows; use .venv/bin/pip elsewhere
-cp .env.example .env                      # set NEO4J_PASSWORD
+.venv/Scripts/pip install -e ".[mcp]"     # Windows; use .venv/bin/pip elsewhere. Drop [mcp] if you do not need it.
 cp products.example.yaml products.yaml    # list your products and repositories
-docker compose up -d                      # Neo4j on http://localhost:7474 and bolt://localhost:7687
+cp .env.example .env                      # only for Neo4j: set NEO4J_PASSWORD
+docker compose up -d                      # only for Neo4j: http://localhost:7474 and bolt://localhost:7687
 ```
 
 `products.yaml`, `.env`, `out/` and `.cache/` are gitignored: they name your repositories and contain your
@@ -60,10 +70,32 @@ code's structure.
 
 ```sh
 bckg extract                                   # writes out/graph.json and prints counts and warnings
-bckg load                                      # replaces the database content
+bckg ask                                       # lists the questions
+bckg ask id_collisions
+bckg ask feature_trace --param feature=FEAT-WGT-001
+bckg report                                    # writes out/report.html
+```
+
+### Ask Claude
+
+`bckg mcp` is an MCP server over stdio. Register it with Claude Code from this folder:
+
+```sh
+claude mcp add bc-knowledge-graph -- .venv/Scripts/bckg mcp --graph out/graph.json
+```
+
+(or add the same command to any MCP client's configuration). Then ask, for example, *"Can the warehouse and
+construction apps be installed in the same environment?"* or *"What does FEAT-WGT-001 consist of?"*. The server
+offers one tool per question, `overview`, `find_objects`, `object_details` and `write_report`, plus the graph model
+as a resource. It rereads `out/graph.json` when it changes, so `bckg extract` is enough to refresh its answers.
+With `NEO4J_PASSWORD` set it also offers a read-only `cypher` tool (writes are rejected by the database).
+
+### Neo4j (optional)
+
+```sh
+bckg load                                      # replaces the database content with out/graph.json
 bckg query queries/id-collisions.cypher
 bckg query queries/feature-trace.cypher --param feature=FEAT-WGT-001
-bckg query queries/contract-impact.cypher --param property=Category.parentId
 ```
 
 The same queries run in Neo4j Browser (`http://localhost:7474`); set parameters there with
@@ -79,10 +111,19 @@ feature_folders:
 ## Development
 
 ```sh
+.venv/Scripts/pip install -e ".[dev]"
 .venv/Scripts/python -m pytest
 ```
 
-The tests run against an invented two-product example under `tests/fixtures`.
+The tests run against an invented two-product example under `tests/fixtures`. The parity tests (Python questions
+against their Cypher twins) run only when `NEO4J_TEST_URI` and `NEO4J_TEST_PASSWORD` point at a **throwaway**
+Neo4j, because they replace its content; CI provides one.
+
+## Showcase
+
+[`showcase/products.yaml`](showcase/products.yaml) lists public repositories. The
+[Showcase workflow](.github/workflows/showcase.yml) extracts them every night, writes the report and publishes it,
+together with the graph file, with GitHub Pages at [graph.dmom.ai](https://graph.dmom.ai).
 
 ## Licence
 
