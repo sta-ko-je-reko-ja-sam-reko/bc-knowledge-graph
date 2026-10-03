@@ -1,5 +1,6 @@
-"""Command line: extract the graph to JSON, load it into Neo4j, print statistics."""
+"""Command line: extract the graph, answer questions, write the report, serve MCP, load into Neo4j."""
 import argparse
+import json
 import os
 import sys
 from collections import Counter
@@ -44,6 +45,22 @@ def main(argv=None):
         command.add_argument('--database', default=os.environ.get('NEO4J_DATABASE'))
     stats = commands.add_parser('stats', help='count nodes and relationships in out/graph.json')
     stats.add_argument('--graph', default='out/graph.json')
+    ask = commands.add_parser('ask', help='answer one question from out/graph.json (no Neo4j needed)')
+    ask.add_argument('question', nargs='?', help='question id; leave out to list them')
+    ask.add_argument('--param', action='append', default=[], metavar='NAME=VALUE')
+    ask.add_argument('--graph', default='out/graph.json')
+    report = commands.add_parser('report', help='write one HTML page that answers every question')
+    report.add_argument('--graph', default='out/graph.json')
+    report.add_argument('--out', default='out/report.html')
+    report.add_argument('--title', default='Business Central knowledge graph')
+    report.add_argument('--group-by', choices=['product', 'app'], default='product')
+    report.add_argument('--source', help='where the graph came from, shown under the title')
+    report.add_argument('--graph-url', help='link to a downloadable copy of the graph')
+    mcp = commands.add_parser('mcp', help='serve the graph to Claude and other MCP clients')
+    mcp.add_argument('--graph', default='out/graph.json')
+    mcp.add_argument('--http', action='store_true', help='streamable HTTP on --host/--port instead of stdio')
+    mcp.add_argument('--host', default='127.0.0.1')
+    mcp.add_argument('--port', type=int, default=8765)
     args = parser.parse_args(argv)
 
     if args.command == 'extract':
@@ -68,6 +85,30 @@ def main(argv=None):
             for row in rows:
                 print('\t'.join(str(value) for value in row))
             print('(%d rows)' % len(rows), file=sys.stderr)
+    elif args.command == 'ask':
+        from .questions import QUESTIONS, View, answer
+        if not args.question:
+            for question in QUESTIONS:
+                params = ' '.join('--param %s=...' % name for name in question.params)
+                print('%-26s %s %s' % (question.id, question.ask, params))
+            return 0
+        params = dict(param.split('=', 1) for param in args.param)
+        rows = answer(View(Graph.load(Path(args.graph))), args.question, **params)
+        print(json.dumps(rows, indent=1, ensure_ascii=False))
+        print('(%d rows)' % len(rows), file=sys.stderr)
+    elif args.command == 'report':
+        from .questions import View
+        from .report import render
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(render(View(Graph.load(Path(args.graph))), args.title, args.group_by,
+                                    args.source, args.graph_url), encoding='utf-8')
+        print('wrote', out)
+    elif args.command == 'mcp':
+        from .mcp_server import serve
+        if args.http and args.host not in ('127.0.0.1', 'localhost'):
+            print('warning: the MCP server has no authentication; do not expose it publicly', file=sys.stderr)
+        serve(args.graph, 'http' if args.http else 'stdio', args.host, args.port)
     else:
         print_stats(Graph.load(Path(args.graph)))
     return 0

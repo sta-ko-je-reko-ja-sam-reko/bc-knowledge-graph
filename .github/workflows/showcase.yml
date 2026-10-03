@@ -1,0 +1,51 @@
+name: Showcase
+
+# Builds the report for the public repositories in showcase/products.yaml and publishes it with GitHub Pages.
+on:
+  schedule:
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["bckg/**", "showcase/**", ".github/workflows/showcase.yml"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -e .
+      - name: Extract the graph
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bckg extract --config showcase/products.yaml --out site/graph.json
+      - name: Write the report
+        run: >-
+          bckg report --graph site/graph.json --out site/index.html
+          --title "Business Central app graph" --source "public repositories on GitHub" --graph-url graph.json
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

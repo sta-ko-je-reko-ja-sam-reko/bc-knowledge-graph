@@ -17,6 +17,14 @@ BACKTICK = re.compile(r'`([^`\r\n]+)`')
 VERSION = re.compile(r'\d+\.\d+\.\d+')
 
 
+def read_text(path):
+    """Source text, honouring a UTF-16 or UTF-8 byte-order mark; undecodable bytes become U+FFFD."""
+    raw = path.read_bytes()
+    if raw[:2] in (b'\xff\xfe', b'\xfe\xff'):
+        return raw.decode('utf-16', errors='replace')
+    return raw.decode('utf-8-sig', errors='replace')
+
+
 def norm(text):
     return re.sub(r'[^a-z0-9]', '', text.lower())
 
@@ -69,8 +77,8 @@ class Extractor:
         for folder in repo.get('contracts', []):
             add_contracts(self.graph, root, folder, repo_ref)
         pin = root / 'CONTRACT_PIN'
-        if pin.exists() and VERSION.search(pin.read_text(encoding='utf-8')):
-            self.pins.append((repo_ref, VERSION.search(pin.read_text(encoding='utf-8')).group(0)))
+        if pin.exists() and VERSION.search(read_text(pin)):
+            self.pins.append((repo_ref, VERSION.search(read_text(pin)).group(0)))
         apps = list(walk(root, 'app.json'))
         for app_json in apps:
             self.add_app(app_json, root, repo_ref)
@@ -78,20 +86,31 @@ class Extractor:
             self.text_scans.append((repo_ref, root))
 
     def add_app(self, app_json, repo_root, repo_ref):
-        manifest = json.loads(app_json.read_text(encoding='utf-8-sig'))
+        try:
+            manifest = json.loads(read_text(app_json))
+        except ValueError as error:
+            self.warnings.append('%s: not valid JSON (%s), skipped' % (app_json.relative_to(repo_root), error))
+            return
+        if not isinstance(manifest, dict) or not manifest.get('id') or not manifest.get('name'):
+            self.warnings.append('%s: no app id or name, skipped' % app_json.relative_to(repo_root).as_posix())
+            return
         app_root = app_json.parent
         app_ref = self.graph.node('App', manifest['id'], name=manifest['name'], publisher=manifest.get('publisher'),
                                   version=manifest.get('version'), runtime=manifest.get('runtime'),
                                   application=manifest.get('application'), target=manifest.get('target'),
                                   path=app_root.relative_to(repo_root).as_posix(), origin='own',
-                                  idRanges=[f"{r['from']}-{r['to']}" for r in manifest.get('idRanges', [])])
+                                  idRanges=[f"{r['from']}-{r['to']}" for r in manifest.get('idRanges') or []
+                                            if 'from' in r and 'to' in r])
         self.graph.rel('CONTAINS', repo_ref, app_ref)
-        for dependency in manifest.get('dependencies', []):
-            dependency_ref = self.graph.node('App', dependency['id'], name=dependency['name'],
+        for dependency in manifest.get('dependencies') or []:
+            dependency_id = dependency.get('id') or dependency.get('appId')
+            if not dependency_id:
+                continue
+            dependency_ref = self.graph.node('App', dependency_id, name=dependency.get('name'),
                                              publisher=dependency.get('publisher'))
             self.graph.rel('DEPENDS_ON', app_ref, dependency_ref, version=dependency.get('version'))
         for path in walk(app_root, '*.al'):
-            parsed = al.parse(path.read_text(encoding='utf-8-sig'))
+            parsed = al.parse(read_text(path))
             if not parsed:
                 continue
             relative = path.relative_to(app_root)
@@ -115,7 +134,7 @@ class Extractor:
                 self.graph.rel('HAS_FEATURE', app_ref, feature_ref)
                 self.pending_features.append((feature_ref, folder, app_root, app_ref))
                 for plan in folder.glob('test-plan*.md'):
-                    self.test_plans.append((feature_ref, plan.read_text(encoding='utf-8'), repo_ref))
+                    self.test_plans.append((feature_ref, read_text(plan), repo_ref))
 
     # ---------------------------------------------------------------- names -> objects
     def object_ref(self, object_type, name):
@@ -208,7 +227,7 @@ class Extractor:
                     self.graph.rel('IMPLEMENTED_BY', feature_ref, ref, via='folder')
             mentioned = set()
             for doc in folder.glob('technical-documentation*.md'):
-                mentioned |= {norm(m) for m in BACKTICK.findall(doc.read_text(encoding='utf-8'))}
+                mentioned |= {norm(m) for m in BACKTICK.findall(read_text(doc))}
             for ref, parsed in objects:
                 names = {norm(parsed['name']), norm(Path(self.graph.nodes[ref]['file']).name)}
                 if names & mentioned:
@@ -284,6 +303,6 @@ def api_properties(parsed):
 
 def extract(config_path, cache_dir=None):
     config_path = Path(config_path).resolve()
-    config = yaml.safe_load(config_path.read_text(encoding='utf-8'))
+    config = yaml.safe_load(read_text(config_path))
     extractor = Extractor(config, config_path.parent, cache_dir or config_path.parent / '.cache' / 'repos')
     return extractor.run(), extractor.warnings
