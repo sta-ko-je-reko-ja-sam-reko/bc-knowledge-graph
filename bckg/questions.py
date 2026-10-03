@@ -307,8 +307,11 @@ def overview(view):
                              'tests': sum(len(view.targets(o, 'HAS_TEST')) for o in objects)})
         contracts = [view.node(c)['key'] for repo in view.targets(product, 'HAS_REPO')
                      for c in view.targets(repo, 'OWNS')]
-        products.append({'product': view.node(product)['name'], 'apps': sorted(apps, key=lambda a: a['app']),
-                         'contracts': sorted(contracts)})
+        repos = [{'repo': view.node(r)['name'], 'github': view.node(r).get('github'),
+                  'description': view.node(r).get('description')} for r in view.targets(product, 'HAS_REPO')]
+        products.append({'product': view.node(product)['name'], 'description': view.node(product).get('description'),
+                         'repos': sorted(repos, key=lambda r: r['repo']),
+                         'apps': sorted(apps, key=lambda a: a['app']), 'contracts': sorted(contracts)})
     standard = [r for r in view.label('Object') if view.node(r).get('origin') == 'standard']
     return {'products': products,
             'totals': {'apps': sum(len(p['apps']) for p in products), 'objects': len(view.app_of),

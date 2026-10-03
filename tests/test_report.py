@@ -17,3 +17,13 @@ def test_report_answers_every_question_without_parameters():
     assert 'feature_trace' in page
     assert 'href="graph.json"' in page
     assert '<script' not in page and 'http://' not in page  # self-contained
+
+
+def test_report_intro_legend_and_product_cards():
+    view = View(extract(FIXTURES / 'products.yaml')[0])
+    default = render(view)
+    assert 'class="lead"' in default and 'How to read this page' in default
+    assert 'id="products"' in default and '<article class="product"><h3>Alpha</h3>' in default
+    assert '1 feature<' in default  # singular
+    custom = render(view, intro='<p class="lead">Custom intro</p>')
+    assert 'Custom intro' in custom and 'built from the AL source of the apps below' not in custom
