@@ -97,6 +97,9 @@ section.legend, nav { margin-bottom:18px; }
 .highlights { list-style:none; margin:0; padding:0; display:grid; gap:6px; font-size:13.5px; }
 .highlights .pill { margin:0 6px 0 0; }
 .private-note { margin:0; font-size:13px; color:var(--muted); }
+.byline { margin:-6px 0 18px; font-size:14px; color:var(--muted); }
+section h3 { font-size:15px; margin:18px 0 6px; }
+#help > p:last-child, #about .lead { max-width:880px; }
 footer { color:var(--muted); font-size:13px; text-align:center; margin-top:32px; }
 footer a { color:var(--muted); }
 """
@@ -284,7 +287,12 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
                                            'parameter': ', '.join('%s: %s' % kv for kv in q.params.items())}
                                           for q in asked]))
     nav.append('<li><a href="#more">Questions with a parameter</a></li>')
-    if outro:
+    if outro and outro.lstrip().startswith('<section'):
+        # the fragment brings its own sections; list the titled ones in the contents
+        sections.append(outro)
+        for section_id, heading in re.findall(r'<section[^>]*\bid="([^"]+)"[^>]*>\s*<h2>(.*?)</h2>', outro, re.S):
+            nav.append('<li><a href="#%s">%s</a></li>' % (esc(section_id), heading))
+    elif outro:
         sections.append('<section id="next" class="outro">%s</section>' % outro)
 
     totals = info['totals']

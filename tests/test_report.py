@@ -45,3 +45,10 @@ def test_report_extra_product_cards():
     page = render(view, extra_products='<article class="product private"><h3>Hidden</h3></article>')
     products = page[page.index('id="products"'):page.index('</section>', page.index('id="products"'))]
     assert products.index('<h3>Beta</h3>') < products.index('<h3>Hidden</h3>')  # after the generated cards
+
+
+def test_report_outro_with_own_sections_feeds_the_contents():
+    view = View(extract(FIXTURES / 'products.yaml')[0])
+    page = render(view, outro='<section id="about"><h2>About</h2></section><section id="contact"><h2>Contact</h2></section>')
+    assert '<li><a href="#about">About</a></li>' in page and '<li><a href="#contact">Contact</a></li>' in page
+    assert 'id="next"' not in page  # not wrapped again
