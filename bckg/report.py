@@ -100,6 +100,10 @@ section.legend, nav { margin-bottom:18px; }
 .byline { margin:-6px 0 18px; font-size:14px; color:var(--muted); }
 section h3 { font-size:15px; margin:18px 0 6px; }
 #help > p:last-child, #about .lead { max-width:880px; }
+.contact { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr)); gap:10px; margin:0; }
+.contact div { background:var(--bg); border-radius:8px; padding:10px 14px; }
+.contact dt { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+.contact dd { margin:2px 0 0; font-weight:600; overflow-wrap:anywhere; }
 footer { color:var(--muted); font-size:13px; text-align:center; margin-top:32px; }
 footer a { color:var(--muted); }
 """
