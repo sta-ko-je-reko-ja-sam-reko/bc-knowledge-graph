@@ -20,8 +20,7 @@ It answers questions that are hard to answer by reading repositories one at a ti
 
 The graph model is described in [docs/graph-model.md](docs/graph-model.md).
 
-**See it live:** [graph.dmom.ai](https://graph.dmom.ai) — the report for a set of public Business Central apps,
-rebuilt every night.
+**See it live:** [graph.dmom.ai](https://graph.dmom.ai) — the report for a set of public Business Central apps.
 
 ## How it works
 
@@ -125,8 +124,9 @@ Neo4j, because they replace its content; CI provides one.
 ## Showcase
 
 [`showcase/products.yaml`](showcase/products.yaml) lists public repositories. The
-[Showcase workflow](.github/workflows/showcase.yml) extracts them every night, writes the report and publishes it,
-together with the graph file, with GitHub Pages at [graph.dmom.ai](https://graph.dmom.ai).
+[Showcase workflow](.github/workflows/showcase.yml) extracts them, writes the report and publishes it,
+together with the graph file, with GitHub Pages at [graph.dmom.ai](https://graph.dmom.ai). It runs when the tool or the showcase
+changes on `main`, or by hand from the Actions tab.
 
 ## Licence
 

@@ -1,9 +1,8 @@
 name: Showcase
 
 # Builds the report for the public repositories in showcase/products.yaml and publishes it with GitHub Pages.
+# Runs when the tool or the showcase changes on main, or by hand (Actions > Showcase > Run workflow).
 on:
-  schedule:
-    - cron: "30 3 * * *"
   workflow_dispatch:
   push:
     branches: [main]

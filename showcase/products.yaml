@@ -1,5 +1,5 @@
 # The public showcase: Business Central apps whose repositories are public.
-# Built nightly by .github/workflows/showcase.yml and published to https://graph.dmom.ai
+# Built by .github/workflows/showcase.yml (on changes to main, or by hand) and published to https://graph.dmom.ai
 products:
   - name: Commerce
     description: Headless commerce on Business Central - a storefront and domain services, an Azure integration layer and an AL connector, joined by versioned OpenAPI and AsyncAPI contracts.
