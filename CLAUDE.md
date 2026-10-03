@@ -32,4 +32,4 @@ contracts) into a Neo4j graph. Read `README.md` for usage and `docs/graph-model.
 | `bckg/mcp_server.py` | MCP server: one tool per question, overview, object lookup, report, optional read-only Cypher |
 | `bckg/load.py` | graph -> Neo4j (full rebuild), query runner |
 | `bckg/cli.py` | `bckg extract | ask | report | mcp | load | query | stats` |
-| `showcase/` | public repositories published nightly to graph.dmom.ai by `.github/workflows/showcase.yml` |
+| `showcase/` | public repositories published to graph.dmom.ai (on changes to main or by hand) by `.github/workflows/showcase.yml` |
