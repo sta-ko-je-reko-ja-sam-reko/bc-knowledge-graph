@@ -57,6 +57,7 @@ def main(argv=None):
     report.add_argument('--source', help='where the graph came from, shown under the title')
     report.add_argument('--graph-url', help='link to a downloadable copy of the graph')
     report.add_argument('--intro', help='HTML fragment shown under the title instead of the default introduction')
+    report.add_argument('--prelude', help='HTML sections shown right after the introduction, for example a profile')
     report.add_argument('--outro', help='HTML fragment shown as the last section, for example a call to action')
     report.add_argument('--skip', action='append', default=[], metavar='QUESTION',
                         help='leave a question off the page, for example features_without_tests (repeatable)')
@@ -114,7 +115,8 @@ def main(argv=None):
                                     Path(args.intro).read_text(encoding='utf-8') if args.intro else None,
                                     Path(args.outro).read_text(encoding='utf-8') if args.outro else None,
                                     Path(args.extra_products).read_text(encoding='utf-8') if args.extra_products else None,
-                                    args.skip, args.hide_coverage), encoding='utf-8')
+                                    args.skip, args.hide_coverage,
+                                    Path(args.prelude).read_text(encoding='utf-8') if args.prelude else None), encoding='utf-8')
         print('wrote', out)
     elif args.command == 'mcp':
         from .mcp_server import serve

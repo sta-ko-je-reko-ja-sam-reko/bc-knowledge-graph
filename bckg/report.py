@@ -97,6 +97,14 @@ section.legend, nav { margin-bottom:18px; }
 .highlights { list-style:none; margin:0; padding:0; display:grid; gap:6px; font-size:13.5px; }
 .highlights .pill { margin:0 6px 0 0; }
 .private-note { margin:0; font-size:13px; color:var(--muted); }
+.skills { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:8px; margin:14px 0 4px; }
+.skills div { background:var(--bg); border-radius:8px; padding:8px 12px; display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+.skills b { font-weight:600; } .skills span { color:var(--muted); font-size:13px; white-space:nowrap; }
+.projects { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:12px; }
+.project { border:1px solid var(--line); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:6px; }
+.project h4 { margin:0; font-size:15px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.project p { margin:0; color:var(--muted); font-size:13.5px; flex:1; }
+.project a.repo { font-size:13px; }
 .byline { margin:-6px 0 18px; font-size:14px; color:var(--muted); }
 section h3 { font-size:15px; margin:18px 0 6px; }
 #help > p:last-child, #about .lead { max-width:880px; }
@@ -258,11 +266,18 @@ def overlap_matrix(rows, owners):
         head, ''.join(body))
 
 
+def titled_sections(fragment):
+    """Contents entries for the <section id="..."><h2>Title</h2> parts of an HTML fragment."""
+    return ['<li><a href="#%s">%s</a></li>' % (esc(section_id), heading)
+            for section_id, heading in re.findall(r'<section[^>]*\bid="([^"]+)"[^>]*>\s*<h2>(.*?)</h2>', fragment, re.S)]
+
+
 def render(view, title='Business Central knowledge graph', group_by='product', source=None, graph_url=None,
-           intro=None, outro=None, extra_products=None, skip=(), hide_coverage=False):
+           intro=None, outro=None, extra_products=None, skip=(), hide_coverage=False, prelude=None):
     """The whole page. `intro` is an HTML fragment shown under the title instead of the default lead; `outro` an
     HTML fragment shown as the last section (for example a call to action); `extra_products` HTML cards added after
-    the product cards (for example a private product that is not in the graph); `skip` question ids to leave out; `hide_coverage` leaves test coverage off the product cards and totals."""
+    the product cards (for example a private product that is not in the graph); `skip` question ids to leave out; `hide_coverage` leaves test coverage off the product cards and totals; `prelude` HTML sections shown
+    right after the introduction, before the graph (for example a profile)."""
     info = overview(view)
     owner_label = {'owners': 'products' if group_by == 'product' else 'apps',
                    'touches': 'by ' + ('product' if group_by == 'product' else 'app')}
@@ -307,8 +322,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
     if outro and outro.lstrip().startswith('<section'):
         # the fragment brings its own sections; list the titled ones in the contents
         sections.append(outro)
-        for section_id, heading in re.findall(r'<section[^>]*\bid="([^"]+)"[^>]*>\s*<h2>(.*?)</h2>', outro, re.S):
-            nav.append('<li><a href="#%s">%s</a></li>' % (esc(section_id), heading))
+        nav.extend(titled_sections(outro))
     elif outro:
         sections.append('<section id="next" class="outro">%s</section>' % outro)
 
@@ -343,11 +357,13 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
 %s
 <p class="meta">%s</p>
 </header>
+<nav aria-label="Contents"><h2>On this page</h2><ul>%s</ul></nav>
+%s
 <div class="totals">%s</div>
 %s
-<nav aria-label="Contents"><h2>On this page</h2><ul>%s</ul></nav>
 %s
 </main>
 </body>
 </html>
-""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, cards, legend(any_found), ''.join(nav), '\n'.join(sections))
+""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, ''.join((titled_sections(prelude) if prelude else []) + nav),
+       prelude or '', cards, legend(any_found), '\n'.join(sections))

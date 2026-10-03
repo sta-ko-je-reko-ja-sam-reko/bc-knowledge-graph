@@ -32,7 +32,7 @@ jobs:
       - name: Write the report
         run: >-
           bckg report --graph site/graph.json --out site/index.html
-          --title "Business Central app graph" --source "public repositories on GitHub" --graph-url graph.json --intro showcase/intro.html --outro showcase/outro.html --extra-products showcase/products-extra.html --skip features_without_tests --skip contract_coverage --hide-coverage
+          --title "Business Central app graph" --source "public repositories on GitHub" --graph-url graph.json --intro showcase/intro.html --prelude showcase/profile.html --extra-products showcase/products-extra.html --skip features_without_tests --skip contract_coverage --hide-coverage
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site

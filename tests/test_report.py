@@ -70,3 +70,11 @@ def test_report_hide_coverage_and_legend_follows_findings():
     assert 'of 1 tested' not in portfolio and 'features tested' not in portfolio and 'No test app' not in portfolio and 'none documented' not in portfolio
     assert 'A check found something' not in portfolio  # no check on the page found anything
     assert '<dt>Tests</dt><dd>0</dd>' not in portfolio
+
+
+def test_report_prelude_comes_before_the_products_and_leads_the_contents():
+    view = View(extract(FIXTURES / 'products.yaml')[0])
+    page = render(view, prelude='<section id="about"><h2>About</h2></section>')
+    assert page.index('id="about"') < page.index('id="products"')
+    nav = page[page.index('<nav'):page.index('</nav>')]
+    assert nav.index('href="#about"') < nav.index('href="#products"')
