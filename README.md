@@ -10,6 +10,7 @@ It answers questions that are hard to answer by reading repositories one at a ti
 |---|---|
 | Which object IDs are used by more than one of my apps? (per-tenant extensions with the same ID cannot be installed together) | [id-collisions](queries/id-collisions.cypher) |
 | Which fields do two apps add to the same table with the same ID or name? | [field-collisions](queries/field-collisions.cypher) |
+| Which pairs of products touch the most standard objects in common? | [product-overlap](queries/product-overlap.cypher) |
 | Which standard tables, codeunits and events are touched by more than one product? | [shared-standard-objects](queries/shared-standard-objects.cypher), [shared-events](queries/shared-events.cypher) |
 | Which features have no tests? | [features-without-tests](queries/features-without-tests.cypher) |
 | What implements a feature, what tests it, what standard objects does it touch? | [feature-trace](queries/feature-trace.cypher) |
@@ -74,6 +75,7 @@ bckg ask                                       # lists the questions
 bckg ask id_collisions
 bckg ask feature_trace --param feature=FEAT-WGT-001
 bckg report                                    # writes out/report.html
+bckg report --intro intro.html --outro outro.html   # your own introduction and closing section (HTML fragments)
 ```
 
 ### Ask Claude

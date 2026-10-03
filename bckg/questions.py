@@ -135,6 +135,28 @@ def shared_events(view, group_by='product'):
     return sorted(rows, key=lambda r: -len(r['owners']))
 
 
+def product_overlap(view, group_by='product'):
+    touched = defaultdict(set)  # owner -> standard objects it extends, uses or subscribes to (test apps left out)
+    for obj, app in view.app_of.items():
+        if view.is_test_app(app):
+            continue
+        for rel_type in ('EXTENDS', 'USES', 'SUBSCRIBES_TO'):
+            for target in view.targets(obj, rel_type):
+                if target[0] == 'Event':
+                    target = next(iter(view.targets(target, 'PUBLISHED_BY')), None)
+                if target and view.node(target).get('origin') == 'standard':
+                    touched[view.owner(obj, group_by)].add(target)
+    owners = sorted(touched)
+    rows = []
+    for i, first in enumerate(owners):
+        for second in owners[i + 1:]:
+            shared = touched[first] & touched[second]
+            if shared:
+                rows.append({'first': first, 'second': second, 'shared': len(shared),
+                             'objects': sorted('%s %s' % (view.node(t)['type'], view.node(t)['name']) for t in shared)})
+    return by(rows, 'shared', 'first', 'second', reverse_first=True)
+
+
 # ------------------------------------------------------------------------------------------------ features
 def features_without_tests(view):
     rows = []
@@ -243,6 +265,12 @@ QUESTIONS = [
              'Which fields do different apps add to the same table with the same ID or name?',
              'Either clash stops the second table extension from installing.',
              ['table', 'clash', 'apps', 'fields'], field_collisions, kind='check', cypher='field-collisions.cypher'),
+    Question('product_overlap', 'Where products meet',
+             'For each pair of products, how many standard objects do both of them extend, subscribe to or use?',
+             'The higher the number, the more a customer running both needs them tested together. Test apps are '
+             'left out.',
+             ['first', 'second', 'shared', 'objects'], product_overlap, params=dict(GROUP_BY),
+             cypher='product-overlap.cypher'),
     Question('shared_standard_objects', 'Standard objects touched by several products',
              'Which standard (Microsoft) objects does more than one product extend, subscribe to or use?',
              'Test these first when several products are installed for the same customer. Test apps are left out.',
@@ -291,32 +319,59 @@ def answer(view, question_id, **params):
 
 
 # ------------------------------------------------------------------------------------------------ overview and lookup
+def tested_features(view, app):
+    """Features of an app that a test plan names or whose objects a test codeunit uses."""
+    tested = 0
+    for feature in view.targets(app, 'HAS_FEATURE'):
+        objects = view.targets(feature, 'IMPLEMENTED_BY')
+        if view.sources(feature, 'VERIFIES') or any(
+                view.node(user).get('isTest') for obj in objects for user in view.sources(obj, 'USES')):
+            tested += 1
+    return tested
+
+
 def overview(view):
-    """Products, their apps and what each app contains."""
+    """Products, their apps and what each app contains. A test app is folded into the app it depends on."""
     products = []
     for product in sorted(view.label('Product'), key=lambda r: r[1]):
-        apps = []
+        apps, test_apps = {}, []
         for repo in view.targets(product, 'HAS_REPO'):
             for app in view.targets(repo, 'CONTAINS'):
                 node = view.node(app)
                 objects = view.targets(app, 'CONTAINS')
-                apps.append({'app': node['name'], 'repo': view.node(repo)['name'], 'github': view.node(repo).get('github'),
-                             'version': node.get('version'),
-                             'idRanges': node.get('idRanges'), 'isTest': bool(node.get('isTest')),
-                             'objects': len(objects), 'features': len(view.targets(app, 'HAS_FEATURE')),
-                             'tests': sum(len(view.targets(o, 'HAS_TEST')) for o in objects)})
+                entry = {'app': node['name'], 'repo': view.node(repo)['name'], 'github': view.node(repo).get('github'),
+                         'version': node.get('version'), 'idRanges': node.get('idRanges') or [],
+                         'objects': len(objects), 'features': len(view.targets(app, 'HAS_FEATURE')),
+                         'featuresTested': tested_features(view, app),
+                         'tests': sum(len(view.targets(o, 'HAS_TEST')) for o in objects), 'testApp': None}
+                if node.get('isTest'):
+                    test_apps.append((app, entry))
+                else:
+                    apps[app] = entry
+        for app, entry in test_apps:
+            tested = next((d for d in view.targets(app, 'DEPENDS_ON') if d in apps), None)
+            if tested is None:  # a test app whose app is not listed: show it on its own
+                apps[app] = dict(entry, testApp=None)
+                continue
+            target = apps[tested]
+            target['tests'] += entry['tests']
+            target['testApp'] = {'app': entry['app'], 'idRanges': entry['idRanges'], 'objects': entry['objects'],
+                                 'tests': entry['tests']}
         contracts = [view.node(c)['key'] for repo in view.targets(product, 'HAS_REPO')
                      for c in view.targets(repo, 'OWNS')]
         repos = [{'repo': view.node(r)['name'], 'github': view.node(r).get('github'),
                   'description': view.node(r).get('description')} for r in view.targets(product, 'HAS_REPO')]
         products.append({'product': view.node(product)['name'], 'description': view.node(product).get('description'),
                          'repos': sorted(repos, key=lambda r: r['repo']),
-                         'apps': sorted(apps, key=lambda a: a['app']), 'contracts': sorted(contracts)})
+                         'apps': sorted(apps.values(), key=lambda a: a['app']), 'contracts': sorted(contracts)})
     standard = [r for r in view.label('Object') if view.node(r).get('origin') == 'standard']
+    all_apps = [a for p in products for a in p['apps']]
     return {'products': products,
-            'totals': {'apps': sum(len(p['apps']) for p in products), 'objects': len(view.app_of),
-                       'standardObjectsTouched': len(standard),
-                       'features': len(view.label('Feature')), 'testProcedures': len(view.label('TestProcedure')),
+            'totals': {'apps': len(all_apps), 'testApps': sum(1 for a in all_apps if a['testApp']),
+                       'objects': len(view.app_of), 'standardObjectsTouched': len(standard),
+                       'features': len(view.label('Feature')),
+                       'featuresTested': sum(a['featuresTested'] for a in all_apps),
+                       'testProcedures': len(view.label('TestProcedure')),
                        'contracts': len(view.label('Contract'))}}
 
 
