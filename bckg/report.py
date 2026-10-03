@@ -104,8 +104,6 @@ section h3 { font-size:15px; margin:18px 0 6px; }
 .contact div { background:var(--bg); border-radius:8px; padding:10px 14px; }
 .contact dt { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
 .contact dd { margin:2px 0 0; font-weight:600; overflow-wrap:anywhere; }
-footer { color:var(--muted); font-size:13px; text-align:center; margin-top:32px; }
-footer a { color:var(--muted); }
 """
 
 
@@ -164,8 +162,6 @@ def table(columns, rows, labels=None, limit=ROW_LIMIT):
 def anchor(question_id):
     return 'q-' + question_id.replace('_', '-')
 
-
-REPO_URL = 'https://github.com/sta-ko-je-reko-ja-sam-reko/bc-knowledge-graph'
 
 DEFAULT_INTRO = """<p class="lead">This page is built from the AL source of the apps below: their objects, the standard
 objects and events they touch, their features and tests, and the API contracts around them. It answers, for all of
@@ -333,10 +329,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
 %s
 <nav aria-label="Contents"><h2>On this page</h2><ul>%s</ul></nav>
 %s
-<footer>Made with <a href="%s">bc-knowledge-graph</a>, open source (MIT), from AL source declarations;
-nothing was compiled or run.</footer>
 </main>
 </body>
 </html>
-""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, cards, LEGEND, ''.join(nav), '\n'.join(sections),
-       REPO_URL)
+""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, cards, LEGEND, ''.join(nav), '\n'.join(sections))
