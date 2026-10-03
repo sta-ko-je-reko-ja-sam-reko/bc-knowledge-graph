@@ -14,8 +14,8 @@ and `MATCH (c:Codeunit)` work.
 
 | Label | Key | Properties |
 |---|---|---|
-| Product | name | name |
-| Repo | name | name, github |
+| Product | name | name, description |
+| Repo | name | name, github, description |
 | App | app id | name, publisher, version, runtime, application, target, path, idRanges, origin (`own` for listed apps), isTest |
 
 ## AL objects

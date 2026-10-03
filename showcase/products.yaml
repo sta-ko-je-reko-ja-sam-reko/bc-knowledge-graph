@@ -2,6 +2,7 @@
 # Built nightly by .github/workflows/showcase.yml and published to https://graph.dmom.ai
 products:
   - name: Commerce
+    description: Headless commerce on Business Central - a storefront and domain services, an Azure integration layer and an AL connector, joined by versioned OpenAPI and AsyncAPI contracts.
     repos:
       - name: commerce-platform
         github: sta-ko-je-reko-ja-sam-reko/commerce-platform
@@ -11,18 +12,22 @@ products:
       - name: commerce-connector-bc
         github: sta-ko-je-reko-ja-sam-reko/commerce-connector-bc
   - name: Warehouse Advanced
+    description: Advanced warehouse management for Business Central Cloud, beyond the standard app.
     repos:
       - name: warehouse-advanced-bc
         github: sta-ko-je-reko-ja-sam-reko/warehouse-advanced-bc
   - name: Construction Management
+    description: A construction vertical on standard Business Central Projects - estimating, cost control, scheduling, progress billing, retention, subcontracts and plant.
     repos:
       - name: bc-construction-management
         github: sta-ko-je-reko-ja-sam-reko/bc-construction-management
   - name: CRM
+    description: Native CRM in Business Central - record ownership and teams, an activity timeline, opportunities, a guided sales process, a product catalog and pricing, with no Dataverse.
     repos:
       - name: bc-native-crm
         github: sta-ko-je-reko-ja-sam-reko/bc-native-crm
   - name: Invoice Forge
+    description: High-volume invoice import and batch posting - a Rust ingestion service and an AL extension that posts through Business Central's supported APIs.
     repos:
       - name: bc-invoice-forge
         github: sta-ko-je-reko-ja-sam-reko/bc-invoice-forge

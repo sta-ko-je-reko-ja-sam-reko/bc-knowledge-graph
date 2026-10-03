@@ -61,10 +61,12 @@ class Extractor:
     # ---------------------------------------------------------------- products, repos, apps
     def run(self):
         for product in self.config['products']:
-            product_ref = self.graph.node('Product', product['name'], name=product['name'])
+            product_ref = self.graph.node('Product', product['name'], name=product['name'],
+                                          description=product.get('description'))
             for repo in product['repos']:
                 root = resolve_repo(repo, self.config_dir, self.cache_dir)
-                repo_ref = self.graph.node('Repo', repo['name'], name=repo['name'], github=repo.get('github'))
+                repo_ref = self.graph.node('Repo', repo['name'], name=repo['name'], github=repo.get('github'),
+                                           description=repo.get('description'))
                 self.graph.rel('HAS_REPO', product_ref, repo_ref)
                 self.add_repo(repo, root, repo_ref)
         self.resolve_objects()

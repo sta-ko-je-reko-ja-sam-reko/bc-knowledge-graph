@@ -3,6 +3,7 @@
 
 products:
   - name: Shop
+    description: Optional. One sentence shown on the product card in the report.
     repos:
       - name: shop-platform
         github: your-account/shop-platform
