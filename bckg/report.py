@@ -97,11 +97,21 @@ section.legend, nav { margin-bottom:18px; }
 .highlights { list-style:none; margin:0; padding:0; display:grid; gap:6px; font-size:13.5px; }
 .highlights .pill { margin:0 6px 0 0; }
 .private-note { margin:0; font-size:13px; color:var(--muted); }
+.skills { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:8px; margin:14px 0 4px; }
+.skills div { background:var(--bg); border-radius:8px; padding:8px 12px; display:flex; justify-content:space-between; gap:8px; align-items:baseline; }
+.skills b { font-weight:600; } .skills span { color:var(--muted); font-size:13px; white-space:nowrap; }
+.projects { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr)); gap:12px; }
+.project { border:1px solid var(--line); border-radius:10px; padding:14px 16px; display:flex; flex-direction:column; gap:6px; }
+.project h4 { margin:0; font-size:15px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.project p { margin:0; color:var(--muted); font-size:13.5px; flex:1; }
+.project a.repo { font-size:13px; }
 .byline { margin:-6px 0 18px; font-size:14px; color:var(--muted); }
 section h3 { font-size:15px; margin:18px 0 6px; }
 #help > p:last-child, #about .lead { max-width:880px; }
-footer { color:var(--muted); font-size:13px; text-align:center; margin-top:32px; }
-footer a { color:var(--muted); }
+.contact { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr)); gap:10px; margin:0; }
+.contact div { background:var(--bg); border-radius:8px; padding:10px 14px; }
+.contact dt { color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+.contact dd { margin:2px 0 0; font-weight:600; overflow-wrap:anywhere; }
 """
 
 
@@ -161,20 +171,20 @@ def anchor(question_id):
     return 'q-' + question_id.replace('_', '-')
 
 
-REPO_URL = 'https://github.com/sta-ko-je-reko-ja-sam-reko/bc-knowledge-graph'
-
 DEFAULT_INTRO = """<p class="lead">This page is built from the AL source of the apps below: their objects, the standard
 objects and events they touch, their features and tests, and the API contracts around them. It answers, for all of
 the apps at once, the questions that are hard to answer one repository at a time.</p>"""
 
-LEGEND = """<section class="legend" aria-label="How to read this page">
+def legend(any_found):
+    found = ('<li><span class="badge warn">3 found</span> A check found something to fix or review; the rows below '
+             'say what.</li>\n' if any_found else '')
+    return ("""<section class="legend" aria-label="How to read this page">
 <h2>How to read this page</h2>
 <ul>
 <li><span class="badge ok">✓ none found</span> A check passed: nothing that would stop the apps from working together.</li>
-<li><span class="badge warn">3 found</span> A check found something to fix or review; the rows below say what.</li>
-<li><span class="badge info">12</span> Not a problem in itself: places where products meet, worth testing together.</li>
+%s<li><span class="badge info">12</span> Not a problem in itself: places where products meet, worth testing together.</li>
 </ul>
-</section>"""
+</section>""" % found)
 
 
 def plural(count, noun):
@@ -185,7 +195,9 @@ def ranges(values, label=''):
     return ''.join('<span class="chip">%s%s</span>' % (esc(label), esc(r)) for r in values or [])
 
 
-def product_cards(info, extra=None):
+def product_cards(info, extra=None, hide_coverage=False):
+    """One card per product. With hide_coverage the cards show what exists (objects, features, tests where there are
+    some) and leave out test coverage and missing test apps."""
     cards = []
     for product in info['products']:
         repos = ' '.join('<a class="repo" href="https://github.com/%s">%s</a>' % (esc(r['github']), esc(r['repo']))
@@ -194,23 +206,34 @@ def product_cards(info, extra=None):
         apps = []
         for a in product['apps']:
             test_app = a.get('testApp')
-            coverage = ('%d of %d tested' % (a['featuresTested'], a['features']) if a['features'] else 'none documented')
-            if a['features'] and a['featuresTested'] == a['features']:
-                state = 'ok'
-            elif a['features'] and a['featuresTested'] == 0:
-                state = 'warn'
+            stats = ['<div><dt>Objects</dt><dd>%s</dd></div>' % f"{a['objects']:,}"]
+            if a['tests'] or not hide_coverage:
+                stats.append('<div><dt>Tests</dt><dd>%s</dd></div>' % f"{a['tests']:,}")
+            if hide_coverage:
+                if a['features']:
+                    stats.append('<div><dt>Features</dt><dd>%s</dd></div>' % a['features'])
             else:
-                state = 'info' if a['features'] else 'muted'
+                coverage = ('%d of %d tested' % (a['featuresTested'], a['features']) if a['features']
+                            else 'none documented')
+                if a['features'] and a['featuresTested'] == a['features']:
+                    state = 'ok'
+                elif a['features'] and a['featuresTested'] == 0:
+                    state = 'warn'
+                else:
+                    state = 'info' if a['features'] else 'muted'
+                stats.append('<div><dt>Features</dt><dd>%s <span class="pill %s">%s</span></dd></div>'
+                             % (a['features'], state, coverage))
+            if test_app:
+                note = '<p class="test-app">Tests in <i>%s</i> (%s)</p>' % (
+                    esc(test_app['app']), plural(test_app['objects'], 'codeunit'))
+            else:
+                note = '' if hide_coverage else '<p class="test-app">No test app</p>'
             apps.append(
                 '<div class="app-card"><div class="app-head"><b>%s</b><span class="version">%s</span></div>'
-                '<div class="ranges">%s%s</div>'
-                '<dl class="stats"><div><dt>Objects</dt><dd>%s</dd></div><div><dt>Tests</dt><dd>%s</dd></div>'
-                '<div><dt>Features</dt><dd>%s <span class="pill %s">%s</span></dd></div></dl>%s</div>' % (
+                '<div class="ranges">%s%s</div><dl class="stats">%s</dl>%s</div>' % (
                     esc(a['app']), esc('v' + a['version'] if a.get('version') else ''),
                     ranges(a['idRanges'], 'app '), ranges(test_app['idRanges'], 'tests ') if test_app else '',
-                    f"{a['objects']:,}", f"{a['tests']:,}", a['features'], state, coverage,
-                    '<p class="test-app">Tests in <i>%s</i> (%s)</p>' % (esc(test_app['app']), plural(test_app['objects'], 'codeunit'))
-                    if test_app else '<p class="test-app">No test app</p>'))
+                    ''.join(stats), note))
         contracts = ''.join('<span class="chip">%s</span>' % esc(c) for c in product['contracts'])
         cards.append('<article class="product"><h3>%s</h3>%s<p class="repos">%s</p>%s%s</article>' % (
             esc(product['product']),
@@ -243,26 +266,35 @@ def overlap_matrix(rows, owners):
         head, ''.join(body))
 
 
+def titled_sections(fragment):
+    """Contents entries for the <section id="..."><h2>Title</h2> parts of an HTML fragment."""
+    return ['<li><a href="#%s">%s</a></li>' % (esc(section_id), heading)
+            for section_id, heading in re.findall(r'<section[^>]*\bid="([^"]+)"[^>]*>\s*<h2>(.*?)</h2>', fragment, re.S)]
+
+
 def render(view, title='Business Central knowledge graph', group_by='product', source=None, graph_url=None,
-           intro=None, outro=None, extra_products=None):
+           intro=None, outro=None, extra_products=None, skip=(), hide_coverage=False, prelude=None):
     """The whole page. `intro` is an HTML fragment shown under the title instead of the default lead; `outro` an
     HTML fragment shown as the last section (for example a call to action); `extra_products` HTML cards added after
-    the product cards (for example a private product that is not in the graph)."""
+    the product cards (for example a private product that is not in the graph); `skip` question ids to leave out; `hide_coverage` leaves test coverage off the product cards and totals; `prelude` HTML sections shown
+    right after the introduction, before the graph (for example a profile)."""
     info = overview(view)
     owner_label = {'owners': 'products' if group_by == 'product' else 'apps',
                    'touches': 'by ' + ('product' if group_by == 'product' else 'app')}
-    sections = [product_cards(info, extra_products)]
+    sections = [product_cards(info, extra_products, hide_coverage)]
+    any_found = False
     nav = ['<li><a href="#products">The products</a></li>']
 
     has_contracts = info['totals']['contracts'] > 0
     for q in QUESTIONS:
         required = [p for p in q.params if p != 'group_by']
-        if required or (q.id.startswith('contract') and not has_contracts):
+        if required or q.id in skip or (q.id.startswith('contract') and not has_contracts):
             continue
         rows = q.run(view, group_by=group_by) if 'group_by' in q.params else q.run(view)
         if q.kind == 'check':
             badge = ('<span class="badge ok">✓ none found</span>' if not rows else
                      '<span class="badge warn">%d found</span>' % len(rows))
+            any_found = any_found or bool(rows)
         else:
             badge = '<span class="badge info">%d</span>' % len(rows)
         if q.id == 'product_overlap' and rows:
@@ -290,8 +322,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
     if outro and outro.lstrip().startswith('<section'):
         # the fragment brings its own sections; list the titled ones in the contents
         sections.append(outro)
-        for section_id, heading in re.findall(r'<section[^>]*\bid="([^"]+)"[^>]*>\s*<h2>(.*?)</h2>', outro, re.S):
-            nav.append('<li><a href="#%s">%s</a></li>' % (esc(section_id), heading))
+        nav.extend(titled_sections(outro))
     elif outro:
         sections.append('<section id="next" class="outro">%s</section>' % outro)
 
@@ -300,6 +331,7 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
         f'{v:,}' if isinstance(v, int) else esc(v), esc(k)) for k, v in (
         ('products', len(info['products'])), ('apps', totals['apps']), ('own objects', totals['objects']),
         ('standard objects touched', totals['standardObjectsTouched']),
+        ('features', totals['features']) if hide_coverage else
         ('features tested', '%d / %d' % (totals['featuresTested'], totals['features'])),
         ('test procedures', totals['testProcedures'])))
     stamp = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')
@@ -325,14 +357,13 @@ def render(view, title='Business Central knowledge graph', group_by='product', s
 %s
 <p class="meta">%s</p>
 </header>
-<div class="totals">%s</div>
-%s
 <nav aria-label="Contents"><h2>On this page</h2><ul>%s</ul></nav>
 %s
-<footer>Made with <a href="%s">bc-knowledge-graph</a>, open source (MIT), from AL source declarations;
-nothing was compiled or run.</footer>
+<div class="totals">%s</div>
+%s
+%s
 </main>
 </body>
 </html>
-""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, cards, LEGEND, ''.join(nav), '\n'.join(sections),
-       REPO_URL)
+""" % (esc(title), CSS, esc(title), intro or DEFAULT_INTRO, meta, ''.join((titled_sections(prelude) if prelude else []) + nav),
+       prelude or '', cards, legend(any_found), '\n'.join(sections))
