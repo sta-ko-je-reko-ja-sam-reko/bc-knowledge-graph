@@ -1,0 +1,10 @@
+{
+  "id": "11111111-1111-1111-1111-111111111111",
+  "name": "Alpha",
+  "publisher": "Example",
+  "version": "1.0.0.0",
+  "application": "29.0.0.0",
+  "runtime": "18.0",
+  "idRanges": [{ "from": 50000, "to": 50099 }],
+  "dependencies": []
+}

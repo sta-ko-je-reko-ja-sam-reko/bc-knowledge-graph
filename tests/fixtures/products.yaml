@@ -1,0 +1,20 @@
+products:
+  - name: Alpha
+    repos:
+      - name: alpha
+        path: alpha
+  - name: Beta
+    repos:
+      - name: contracts
+        path: contracts
+        contracts: [specs]
+      - name: beta
+        path: beta
+bindings:
+  - contract: widgets
+    operation: listWidgets
+    al: page:ALP API Widget
+    schema: Widget
+    properties:
+      id: systemId
+      title: description
