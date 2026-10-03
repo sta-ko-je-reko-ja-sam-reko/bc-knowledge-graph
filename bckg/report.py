@@ -88,6 +88,15 @@ section.legend, nav { margin-bottom:18px; }
 .outro p { margin:0 0 10px; max-width:760px; }
 .button { display:inline-block; background:var(--accent); color:var(--card); text-decoration:none; font-weight:600; padding:9px 16px; border-radius:8px; margin:4px 8px 0 0; }
 .button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+.product.private { border-style:dashed; grid-column:1 / -1; }
+.product.private .feature-list { columns:2 340px; column-gap:28px; display:block; }
+.product.private .feature-list li { break-inside:avoid; margin-bottom:4px; }
+.product.private .app-card { max-width:520px; }
+.product h3 .pill { vertical-align:middle; }
+.feature-list { margin:0; padding-left:18px; font-size:13.5px; display:grid; gap:4px; }
+.highlights { list-style:none; margin:0; padding:0; display:grid; gap:6px; font-size:13.5px; }
+.highlights .pill { margin:0 6px 0 0; }
+.private-note { margin:0; font-size:13px; color:var(--muted); }
 footer { color:var(--muted); font-size:13px; text-align:center; margin-top:32px; }
 footer a { color:var(--muted); }
 """
@@ -173,7 +182,7 @@ def ranges(values, label=''):
     return ''.join('<span class="chip">%s%s</span>' % (esc(label), esc(r)) for r in values or [])
 
 
-def product_cards(info):
+def product_cards(info, extra=None):
     cards = []
     for product in info['products']:
         repos = ' '.join('<a class="repo" href="https://github.com/%s">%s</a>' % (esc(r['github']), esc(r['repo']))
@@ -205,8 +214,8 @@ def product_cards(info):
             '<p class="desc">%s</p>' % esc(product['description']) if product.get('description') else '',
             repos, ''.join(apps), '<p class="contracts">API contracts: %s</p>' % contracts if contracts else ''))
     return ('<section id="products"><h2>The products</h2><p class="explain">What the graph was built from. Each app '
-            'owns its own object ID range; its tests are counted with it.</p><div class="products">%s</div></section>'
-            % ''.join(cards))
+            'owns its own object ID range; its tests are counted with it.</p><div class="products">%s%s</div></section>'
+            % (''.join(cards), extra or ''))
 
 
 def overlap_matrix(rows, owners):
@@ -232,13 +241,14 @@ def overlap_matrix(rows, owners):
 
 
 def render(view, title='Business Central knowledge graph', group_by='product', source=None, graph_url=None,
-           intro=None, outro=None):
+           intro=None, outro=None, extra_products=None):
     """The whole page. `intro` is an HTML fragment shown under the title instead of the default lead; `outro` an
-    HTML fragment shown as the last section (for example a call to action)."""
+    HTML fragment shown as the last section (for example a call to action); `extra_products` HTML cards added after
+    the product cards (for example a private product that is not in the graph)."""
     info = overview(view)
     owner_label = {'owners': 'products' if group_by == 'product' else 'apps',
                    'touches': 'by ' + ('product' if group_by == 'product' else 'app')}
-    sections = [product_cards(info)]
+    sections = [product_cards(info, extra_products)]
     nav = ['<li><a href="#products">The products</a></li>']
 
     has_contracts = info['totals']['contracts'] > 0

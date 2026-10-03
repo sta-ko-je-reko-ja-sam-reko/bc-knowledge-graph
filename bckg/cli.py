@@ -58,6 +58,8 @@ def main(argv=None):
     report.add_argument('--graph-url', help='link to a downloadable copy of the graph')
     report.add_argument('--intro', help='HTML fragment shown under the title instead of the default introduction')
     report.add_argument('--outro', help='HTML fragment shown as the last section, for example a call to action')
+    report.add_argument('--extra-products', help='HTML product cards added after the generated ones, for example '
+                        'for a private product that is not in the graph')
     mcp = commands.add_parser('mcp', help='serve the graph to Claude and other MCP clients')
     mcp.add_argument('--graph', default='out/graph.json')
     mcp.add_argument('--http', action='store_true', help='streamable HTTP on --host/--port instead of stdio')
@@ -106,7 +108,8 @@ def main(argv=None):
         out.write_text(render(View(Graph.load(Path(args.graph))), args.title, args.group_by,
                                     args.source, args.graph_url,
                                     Path(args.intro).read_text(encoding='utf-8') if args.intro else None,
-                                    Path(args.outro).read_text(encoding='utf-8') if args.outro else None), encoding='utf-8')
+                                    Path(args.outro).read_text(encoding='utf-8') if args.outro else None,
+                                    Path(args.extra_products).read_text(encoding='utf-8') if args.extra_products else None), encoding='utf-8')
         print('wrote', out)
     elif args.command == 'mcp':
         from .mcp_server import serve
