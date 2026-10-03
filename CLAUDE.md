@@ -13,7 +13,9 @@ contracts) into a Neo4j graph. Read `README.md` for usage and `docs/graph-model.
 - A new question goes into `QUESTIONS` in `bckg/questions.py` **and** gets a Cypher twin in `queries/` with the
   same columns; `tests/test_parity.py` checks they agree. Questions without parameters appear in the report and
   every question becomes an MCP tool automatically.
-- The showcase lists only repositories that are public.
+- The showcase lists only repositories that are public. A private product may appear only as a hand-written card in
+  `showcase/products-extra.html`, with what the owner approved for publication (features, counts, a link) and never
+  its code or structure.
 - When the extractor learns a new node or relationship, update `docs/graph-model.md` and add a fixture
   case to `tests/test_extract.py`. Saved queries live in `queries/`, one question per file, with a comment
   saying what the question is.

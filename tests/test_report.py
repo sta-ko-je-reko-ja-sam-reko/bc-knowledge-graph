@@ -38,3 +38,10 @@ def test_report_overlap_matrix_and_outro():
     assert 'class="matrix"' in page and 'Alpha and Beta: 1 standard objects' in page
     assert '<section id="next" class="outro"><h2>Next</h2>' in page
     assert 'id="next"' not in render(view)
+
+
+def test_report_extra_product_cards():
+    view = View(extract(FIXTURES / 'products.yaml')[0])
+    page = render(view, extra_products='<article class="product private"><h3>Hidden</h3></article>')
+    products = page[page.index('id="products"'):page.index('</section>', page.index('id="products"'))]
+    assert products.index('<h3>Beta</h3>') < products.index('<h3>Hidden</h3>')  # after the generated cards

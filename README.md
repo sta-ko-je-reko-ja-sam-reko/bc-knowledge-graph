@@ -76,6 +76,7 @@ bckg ask id_collisions
 bckg ask feature_trace --param feature=FEAT-WGT-001
 bckg report                                    # writes out/report.html
 bckg report --intro intro.html --outro outro.html   # your own introduction and closing section (HTML fragments)
+bckg report --extra-products cards.html          # hand-written product cards, e.g. for a private product
 ```
 
 ### Ask Claude
