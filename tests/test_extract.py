@@ -73,6 +73,12 @@ def test_features_link_through_folders_and_docs(graph):
                      'Query:ALP API Widget Delta': ['folder'], 'TableExtension:ALP Customer': ['docs']}
 
 
+def test_feature_folders_can_name_a_nested_folder(graph):
+    links = {b[1] for (kind, a, b) in graph.rels if kind == 'IMPLEMENTED_BY' and a[1] == 'Alpha:FEAT-CRD-001'}
+    assert links == {'Codeunit:ALP Sales Subscribers'}
+    assert graph.nodes[('Object', 'Codeunit:ALP Sales Subscribers')]['srcPath'] == 'Sales/codeunits'
+
+
 def test_test_plan_links_tests_to_features(graph):
     assert rels(graph, 'VERIFIES') == {('ALP Widget Tests::WidgetIsCreated', 'Alpha:FEAT-WGT-001')}
     assert rels(graph, 'HAS_TEST') == {('Codeunit:ALP Widget Tests', 'ALP Widget Tests::WidgetIsCreated'),

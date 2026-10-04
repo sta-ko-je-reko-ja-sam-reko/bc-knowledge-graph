@@ -35,6 +35,12 @@ def walk(root, pattern):
             yield path
 
 
+def in_folders(node, folders):
+    """True when an object lives in one of the folders: a top-level src folder, or a nested path under src."""
+    path = node.get('srcPath') or ''
+    return any(node.get('folder') == f or path == f or path.startswith(f + '/') for f in folders)
+
+
 def resolve_repo(repo, config_dir, cache_dir):
     if repo.get('path'):
         return (config_dir / repo['path']).resolve()
@@ -116,10 +122,12 @@ class Extractor:
             if not parsed:
                 continue
             relative = path.relative_to(app_root)
-            folder = relative.parts[1] if len(relative.parts) > 2 and relative.parts[0].lower() == 'src' else None
+            in_src = len(relative.parts) > 2 and relative.parts[0].lower() == 'src'
+            folder = relative.parts[1] if in_src else None
+            src_path = '/'.join(relative.parts[1:-1]) if in_src else None
             ref = self.graph.node('Object', '%s:%s' % (parsed['type'], parsed['name']), type=parsed['type'],
                                   id=parsed['id'], name=parsed['name'], namespace=parsed['namespace'], origin='own',
-                                  app=manifest['name'], folder=folder,
+                                  app=manifest['name'], folder=folder, srcPath=src_path,
                                   file=path.relative_to(repo_root).as_posix(),
                                   isTest=bool(parsed['tests']) or None, **api_properties(parsed))
             self.graph.rel('CONTAINS', app_ref, ref)
@@ -199,9 +207,9 @@ class Extractor:
     def link_features(self):
         """Link features to objects through their src folder and the object names their technical docs quote.
 
-        A feature gets the folder whose name best matches its own. A folder that matches several features
+        A feature gets the top-level src folder whose name best matches its own. A folder that matches several features
         of one app (an Invoicing folder holding INV-001 and INV-002) is ambiguous and is linked to none of them, unless
-        products.yaml assigns it with feature_folders.
+        products.yaml assigns it with feature_folders, which may also name a nested folder (CRM/Opportunity).
         """
         overrides = self.config.get('feature_folders') or {}
         own = [(ref, parsed, app_ref) for ref, parsed, app_ref, _ in self.parsed]
@@ -225,7 +233,7 @@ class Extractor:
             if not chosen:
                 chosen = [f for f in guesses[feature_ref] if len(claims[(feature['app'], f)]) == 1]
             for ref, _ in objects:
-                if self.graph.nodes[ref].get('folder') in chosen:
+                if in_folders(self.graph.nodes[ref], chosen):
                     self.graph.rel('IMPLEMENTED_BY', feature_ref, ref, via='folder')
             mentioned = set()
             for doc in folder.glob('technical-documentation*.md'):

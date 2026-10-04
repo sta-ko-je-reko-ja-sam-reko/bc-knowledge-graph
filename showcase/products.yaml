@@ -36,3 +36,13 @@ products:
     repos:
       - name: bc-dataverse-integration-redesign
         github: sta-ko-je-reko-ja-sam-reko/bc-dataverse-integration-redesign
+# Features whose src folder cannot be guessed from their name (nested folders allowed).
+feature_folders:
+  "CRM:FEAT-ACT-001": Dataverse/Activities
+  "CRM:FEAT-OWN-001": Dataverse/Ownership
+  "CRM:FEAT-PTY-001": Dataverse/PartyEnrichment
+  "CRM:FEAT-OPP-001": CRM/Opportunity
+  "CRM:FEAT-BPF-001": CRM/Process
+  "CRM:FEAT-RC-001": CRM/RoleCenter
+  "Construction Management:FEAT-EST-001": Estimating
+  "Construction Management:FEAT-RC-001": Core/RoleCenter

@@ -10,6 +10,8 @@ products:
         contracts: [specs]
       - name: beta
         path: beta
+feature_folders:
+  "Alpha:FEAT-CRD-001": Sales/codeunits
 bindings:
   - contract: widgets
     operation: listWidgets

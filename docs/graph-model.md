@@ -35,7 +35,7 @@ and `MATCH (c:Codeunit)` work.
 
 | Label | Key | Properties |
 |---|---|---|
-| Object | `Type:Name` | type, id, name, namespace, app, folder, file, origin (`own` or `standard`), isTest; API objects add apiPublisher, apiGroup, apiVersion, entityName, entitySetName |
+| Object | `Type:Name` | type, id, name, namespace, app, folder (top-level `src` folder), srcPath (its folder path under `src`), file, origin (`own` or `standard`), isTest; API objects add apiPublisher, apiGroup, apiVersion, entityName, entitySetName |
 | Field | `Table::Field` | table, name, id, dataType |
 | ApiField | `Type:Object::field` | name, object |
 | Event | `Type:Object::Event('Element')` | name, object, element, trigger, kind (publishers in listed apps) |
@@ -60,6 +60,7 @@ questions possible.
 
 - `folder` — the object is in the `src/<Folder>` that matches the feature's name. A folder that matches
   several features of one app is ambiguous and links to none of them unless `feature_folders` assigns it.
+  `feature_folders` may also name a nested path (`CRM/Opportunity`), which links everything under it.
 - `docs` — the feature's `technical-documentation.md` quotes the object's name or file name in backticks.
 - `test-plan` — the feature's `test-plan*.md` quotes the test procedure's name in backticks.
 

@@ -109,6 +109,7 @@ Warnings name features that no object could be linked to. Assign their folder in
 ```yaml
 feature_folders:
   "My App:FEAT-RPT-002": Reporting
+  "My App:FEAT-OPP-001": CRM/Opportunity   # a nested folder under src
 ```
 
 ## Development
