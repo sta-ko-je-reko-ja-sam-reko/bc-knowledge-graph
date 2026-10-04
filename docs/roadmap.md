@@ -58,5 +58,8 @@ service, but spends money per question, so its limits must be in place before it
   or table fields. It runs without Neo4j, from the question catalog.
 - **TypeScript consumers:** read which modules of non-AL repositories call which contract operations, instead of the
   current text search.
-- **Hosted graphs for other partners' private code:** sign-in, a read-only GitHub App, one graph per workspace, data
-  kept in the EU, and deletion on request. Only if partners ask for it.
+- **Hosted graphs for other partners' private code:** in development in a separate private repository
+  (`bc-graph-cloud`), which uses this engine as a library: sign-in with GitHub, a read-only GitHub App, workspaces
+  with a private report and an MCP endpoint, rebuilds on push, deletion on uninstall. Going live needs the GitHub App
+  registration, hosting (Azure Container Apps, West Europe) and `cloud.dmom.ai`. Item 1's public endpoint can later
+  run on the same service.
