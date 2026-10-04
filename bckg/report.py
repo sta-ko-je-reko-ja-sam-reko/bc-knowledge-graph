@@ -105,6 +105,8 @@ section.legend, nav { margin-bottom:18px; }
 .project h4 { margin:0; font-size:15px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
 .project p { margin:0; color:var(--muted); font-size:13.5px; flex:1; }
 .project a.repo { font-size:13px; }
+.project.featured { grid-column:1 / -1; border-style:dashed; }
+.project.featured .feature-list { color:var(--text); margin:2px 0 4px; }
 .byline { margin:-6px 0 18px; font-size:14px; color:var(--muted); }
 section h3 { font-size:15px; margin:18px 0 6px; }
 #help > p:last-child, #about .lead { max-width:880px; }

@@ -18,7 +18,8 @@ It answers questions that are hard to answer by reading repositories one at a ti
 | If a contract property changes, which AL API field and BC table field are affected? | [contract-impact](queries/contract-impact.cypher) |
 | Is every repository built against the current contract version? | [contract-pins](queries/contract-pins.cypher) |
 
-The graph model is described in [docs/graph-model.md](docs/graph-model.md).
+The graph model is described in [docs/graph-model.md](docs/graph-model.md). Planned work, including plain-language questions on
+graph.dmom.ai, is in [docs/roadmap.md](docs/roadmap.md).
 
 **See it live:** [graph.dmom.ai](https://graph.dmom.ai) — the report for a set of public Business Central apps.
 
