@@ -68,34 +68,81 @@ projects and NAV reimplementations. I improve them with every project, and they 
 
 <section id="projects">
 <h2>My projects</h2>
-<p class="explain">Everything here is my own work. The Business Central apps are described in detail under <a href="#products">The products</a>.</p>
-<h3>Business Central apps</h3>
-<div class="projects">
-  <div class="project"><h4>Serbian Localization <span class="pill muted">private</span></h4><p>A complete Serbian localization for Business Central: SEF e-invoicing, VAT and POPDV, e-Otpremnica, finance, banking and tax depreciation.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-localization-rs">bc-localization-rs</a></div>
-  <div class="project"><h4>Warehouse Advanced</h4><p>Advanced warehouse management for Business Central Cloud, beyond the standard app.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/warehouse-advanced-bc">warehouse-advanced-bc</a></div>
-  <div class="project"><h4>Construction Management</h4><p>A construction vertical on standard Business Central Projects, from estimating to progress billing, retention and subcontracts.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-construction-management">bc-construction-management</a></div>
-  <div class="project"><h4>CRM</h4><p>Native CRM in Business Central with ownership and teams, an activity timeline, opportunities and a guided sales process, with no Dataverse.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-native-crm">bc-native-crm</a></div>
-  <div class="project"><h4>Commerce</h4><p>Headless commerce on Business Central: storefront and domain services, an Azure integration layer and an AL connector, joined by versioned API contracts.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc">commerce-connector-bc</a></div>
-  <div class="project"><h4>Invoice Forge</h4><p>High-volume invoice import and batch posting: a Rust ingestion service and an AL extension.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-invoice-forge">bc-invoice-forge</a></div>
+<p class="explain">Everything here is my own work. Open a project for details; the Business Central apps are also described under <a href="#products">The products</a>.</p>
+<!-- To add a project, copy one <details class="project-item"> block into the right group and update the count. -->
+<details class="project-group" open>
+<summary><h3>Business Central apps <span class="count">6</span></h3></summary>
+<div class="project-list">
+  <details class="project-item">
+    <summary><b>Serbian Localization</b> <span class="pill muted">private</span> <span class="tagline">SEF e-invoicing, VAT and POPDV, e-Otpremnica, finance, banking</span></summary>
+    <p>A complete Serbian localization for Business Central: SEF e-invoicing, VAT and POPDV, e-Otpremnica, finance, banking and tax depreciation. See the full card under <a href="#products">The products</a>.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-localization-rs">bc-localization-rs</a>
+  </details>
+  <details class="project-item">
+    <summary><b>Warehouse Advanced</b> <span class="tagline">Advanced warehouse management for Business Central Cloud</span></summary>
+    <p>Advanced warehouse management for Business Central Cloud, beyond the standard app.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/warehouse-advanced-bc">warehouse-advanced-bc</a>
+  </details>
+  <details class="project-item">
+    <summary><b>Construction Management</b> <span class="tagline">A construction vertical on standard Projects</span></summary>
+    <p>A construction vertical on standard Business Central Projects, from estimating to progress billing, retention and subcontracts.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-construction-management">bc-construction-management</a>
+  </details>
+  <details class="project-item">
+    <summary><b>CRM</b> <span class="tagline">Native CRM in Business Central, with no Dataverse</span></summary>
+    <p>Native CRM in Business Central with ownership and teams, an activity timeline, opportunities and a guided sales process, with no Dataverse.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-native-crm">bc-native-crm</a>
+  </details>
+  <details class="project-item">
+    <summary><b>Commerce</b> <span class="tagline">Headless commerce with Business Central as the system of record</span></summary>
+    <p>Headless commerce on Business Central: storefront and domain services, an Azure integration layer and an AL connector, joined by versioned API contracts.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/commerce-connector-bc">commerce-connector-bc</a>
+  </details>
+  <details class="project-item">
+    <summary><b>Invoice Forge</b> <span class="tagline">High-volume invoice import and batch posting</span></summary>
+    <p>High-volume invoice import and batch posting: a Rust ingestion service and an AL extension.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-invoice-forge">bc-invoice-forge</a>
+  </details>
 </div>
-<h3>Tools for Business Central developers</h3>
-<div class="projects">
-  <div class="project featured"><h4>BC Graph Cloud <span class="pill muted">private</span> <span class="pill ok">early access on request</span></h4>
-    <p>The graph on this page as a hosted service for Business Central partners. Connect your private repositories
-    through a read-only GitHub App, group them into products, and your team gets:</p>
+</details>
+<details class="project-group" open>
+<summary><h3>Tools for Business Central developers <span class="count">6</span></h3></summary>
+<div class="project-list">
+  <details class="project-item">
+    <summary><b>BC Graph Cloud</b> <span class="pill muted">private</span> <span class="pill ok">early access on request</span> <span class="tagline">This graph as a hosted service for partners</span></summary>
+    <p>The graph on this page as a hosted service for Business Central partners. Connect your private repositories through a read-only GitHub App, group them into products, and your team gets:</p>
     <ul class="feature-list">
-      <li><b>A private report</b> for your apps: object ID and field collisions, where your products meet, features
-      and tests, API contracts</li>
+      <li><b>A private report</b> for your apps: object ID and field collisions, where your products meet, features and tests, API contracts</li>
       <li><b>An MCP endpoint</b> for Claude, so your team can ask about your own apps in plain language</li>
       <li><b>Always current:</b> the graph is rebuilt on every push to your repositories</li>
-      <li><b>Your code stays yours:</b> clones are deleted after each build, only the graph is kept, and removing the
-      app deletes your data</li>
+      <li><b>Your code stays yours:</b> clones are deleted after each build, only the graph is kept, and removing the app deletes your data</li>
     </ul>
-    <a class="repo" href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#116;&#114;&#110;&#97;&#118;&#97;&#99;&#116;&#98;&#102;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;?subject=BC%20Graph%20Cloud%20-%20early%20access">Ask for early access</a></div>
-  <div class="project"><h4>BC app graph</h4><p>The tool behind this page: a knowledge graph of Business Central apps with a report and an MCP server for Claude.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-knowledge-graph">bc-knowledge-graph</a></div>
-  <div class="project"><h4>BC Host Container</h4><p>A web project for hosting Business Central containers in Docker and Azure, on-premises and SaaS.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/BCHostContainer">BCHostContainer</a></div>
-  <div class="project"><h4>BC Field Inspector</h4><p>A browser extension that shows field control names directly on Business Central pages, without opening Page Inspection.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/BCFieldInspector">BCFieldInspector</a></div>
-  <div class="project"><h4>BC Layout Compare</h4><p>Compare Business Central report layouts in VS Code, rendered by Business Central's own PDF engine, side by side or as a visual diff.</p><a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-layout-compare">bc-layout-compare</a></div>
-  <div class="project"><h4>Development templates <span class="pill muted">private</span></h4><p>The method behind all of the apps: standards, an AL object reference generated from the compiler, design patterns, rulesets and checklists.</p></div>
+    <a class="repo" href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#116;&#114;&#110;&#97;&#118;&#97;&#99;&#116;&#98;&#102;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;?subject=BC%20Graph%20Cloud%20-%20early%20access">Ask for early access</a>
+  </details>
+  <details class="project-item">
+    <summary><b>BC app graph</b> <span class="tagline">The tool behind this page</span></summary>
+    <p>The tool behind this page: a knowledge graph of Business Central apps with a report and an MCP server for Claude.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-knowledge-graph">bc-knowledge-graph</a>
+  </details>
+  <details class="project-item">
+    <summary><b>BC Host Container</b> <span class="tagline">Business Central containers in Docker and Azure</span></summary>
+    <p>A web project for hosting Business Central containers in Docker and Azure, on-premises and SaaS.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/BCHostContainer">BCHostContainer</a>
+  </details>
+  <details class="project-item">
+    <summary><b>BC Field Inspector</b> <span class="tagline">Field control names right on Business Central pages</span></summary>
+    <p>A browser extension that shows field control names directly on Business Central pages, without opening Page Inspection.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/BCFieldInspector">BCFieldInspector</a>
+  </details>
+  <details class="project-item">
+    <summary><b>BC Layout Compare</b> <span class="tagline">Compare report layouts in VS Code</span></summary>
+    <p>Compare Business Central report layouts in VS Code, rendered by Business Central's own PDF engine, side by side or as a visual diff.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-layout-compare">bc-layout-compare</a>
+  </details>
+  <details class="project-item">
+    <summary><b>Development templates</b> <span class="pill muted">private</span> <span class="tagline">The method behind all of the apps</span></summary>
+    <p>The method behind all of the apps: standards, an AL object reference generated from the compiler, design patterns, rulesets and checklists.</p>
+  </details>
 </div>
+</details>
 </section>

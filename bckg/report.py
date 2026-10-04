@@ -107,6 +107,25 @@ section.legend, nav { margin-bottom:18px; }
 .project a.repo { font-size:13px; }
 .project.featured { grid-column:1 / -1; border-style:dashed; }
 .project.featured .feature-list { color:var(--text); margin:2px 0 4px; }
+.project-group { margin:14px 0 0; }
+.project-group > summary { cursor:pointer; list-style:none; display:flex; align-items:center; gap:8px; }
+.project-group > summary::-webkit-details-marker, .project-item > summary::-webkit-details-marker { display:none; }
+.project-group > summary::before, .project-item > summary::before { content:'▸'; color:var(--muted); font-size:15px; width:12px; display:inline-block; transition:transform .15s; }
+.project-group[open] > summary::before, .project-item[open] > summary::before { transform:rotate(90deg); }
+.project-group > summary h3 { margin:0; display:inline; }
+.count { font-size:12px; font-weight:600; color:var(--muted); background:var(--code); border-radius:999px; padding:1px 8px; margin-left:4px; }
+.project-list { border:1px solid var(--line); border-radius:10px; margin-top:10px; overflow:hidden; }
+.project-item { border-top:1px solid var(--line); }
+.project-item:first-child { border-top:0; }
+.project-group > summary, .project-item > summary { color:var(--text); margin-top:0; }
+.project-item > summary { cursor:pointer; list-style:none; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; padding:11px 16px; }
+.project-item > summary:hover { background:var(--bg); }
+.project-item .tagline { color:var(--muted); font-size:13.5px; flex-basis:100%; padding-left:18px; }
+@media (min-width: 720px) { .project-item .tagline { flex-basis:auto; padding-left:0; } .project-item .tagline::before { content:'— '; } }
+.project-item[open] { background:var(--bg); }
+.project-item > p, .project-item > ul, .project-item > a { margin:0 16px 10px 34px; }
+.project-item > a { display:inline-block; margin-bottom:14px; font-size:13.5px; }
+.project-item .feature-list { padding-left:18px; }
 .byline { margin:-6px 0 18px; font-size:14px; color:var(--muted); }
 section h3 { font-size:15px; margin:18px 0 6px; }
 #help > p:last-child, #about .lead { max-width:880px; }
