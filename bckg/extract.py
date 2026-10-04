@@ -12,7 +12,7 @@ from .graph import Graph
 
 SKIP_DIRS = {'.git', 'node_modules', '.alpackages', '.cache', '.vscode', '.snapshots', 'dist', 'out', 'generated'}
 SCAN_SUFFIXES = {'.ts', '.tsx', '.js', '.mjs', '.cjs', '.bicep', '.json', '.yaml', '.yml', '.cs', '.rs', '.py'}
-FEATURE_FOLDER = re.compile(r'^(FEAT-(?:([A-Z]+)-)?\d+)-(.+)$')
+FEATURE_FOLDER = re.compile(r'^(FEAT-(?:([A-Z]+)-)?\d+[a-z]?)-(.+)$')
 BACKTICK = re.compile(r'`([^`\r\n]+)`')
 VERSION = re.compile(r'\d+\.\d+\.\d+')
 
@@ -247,10 +247,14 @@ class Extractor:
                                      % feature['key'])
 
     def link_tests(self):
+        """Link tests to features through the backticked names in test plans: `Procedure` or `Test Codeunit.Procedure`."""
         for feature_ref, text, repo_ref in self.test_plans:
             mentioned = set(BACKTICK.findall(text))
+            qualified = {tuple(m.rsplit('.', 1)) for m in mentioned if '.' in m}
             for ref, node in self.graph.nodes.items():
-                if ref[0] == 'TestProcedure' and node['name'] in mentioned:
+                if ref[0] != 'TestProcedure':
+                    continue
+                if node['name'] in mentioned or (node.get('codeunit'), node['name']) in qualified:
                     self.graph.rel('VERIFIES', ref, feature_ref, via='test-plan')
 
     # ---------------------------------------------------------------- contracts

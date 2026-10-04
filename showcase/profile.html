@@ -88,9 +88,15 @@ projects and NAV reimplementations. I improve them with every project, and they 
   <details class="project-item">
     <summary><b>Dataverse Integration Redesign</b> <span class="pill ok">new</span> <span class="tagline">Dataverse, Sales and Field Service integration on swappable interfaces</span></summary>
     <p>Microsoft's Dataverse, Dynamics 365 Sales and Field Service integration for Business Central, redesigned around
-    swappable interfaces instead of hard-wired event subscribers: every step of the sync flow is an interface method
-    resolved per integration table mapping, so a dependent app can add or replace the handling of one table pair
-    without touching anyone else's.</p>
+    swappable interfaces instead of hard-wired event subscribers: every integration table mapping picks a handler, and
+    every step of the sync flow (filter, field transfer, insert, modify, coupling, conflicts, follow-ups) is an
+    interface method of that handler, so a dependent app can add or replace the handling of one table pair without
+    touching anyone else's.</p>
+    <p>It covers Dataverse (customers, vendors, contacts, currencies, salespeople), Dynamics 365 Sales (products, units,
+    price lists, opportunities, sales orders, posted invoices, account statistics) and Field Service (resources,
+    customer assets, project journal posting, service orders), the Dataverse actions on 32 pages, the CRM Redirect
+    page and its own Field Service reset. 19 defects found in Microsoft's code are documented, each with the test
+    that shows the redesign avoids it.</p>
     <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-dataverse-integration-redesign">bc-dataverse-integration-redesign</a>
   </details>
   <details class="project-item">

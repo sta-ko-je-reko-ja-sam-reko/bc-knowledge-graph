@@ -79,8 +79,16 @@ def test_feature_folders_can_name_a_nested_folder(graph):
     assert graph.nodes[('Object', 'Codeunit:ALP Sales Subscribers')]['srcPath'] == 'Sales/codeunits'
 
 
+def test_feature_codes_may_have_a_letter_suffix(graph):
+    feature = graph.nodes[('Feature', 'Alpha:FEAT-CRD-002a')]
+    assert (feature['code'], feature['name']) == ('FEAT-CRD-002a', 'CreditLimits')
+    links = {b[1] for (kind, a, b) in graph.rels if kind == 'IMPLEMENTED_BY' and a[1] == 'Alpha:FEAT-CRD-002a'}
+    assert links == {'Codeunit:ALP Sales Subscribers'}
+
+
 def test_test_plan_links_tests_to_features(graph):
-    assert rels(graph, 'VERIFIES') == {('ALP Widget Tests::WidgetIsCreated', 'Alpha:FEAT-WGT-001')}
+    assert rels(graph, 'VERIFIES') == {('ALP Widget Tests::WidgetIsCreated', 'Alpha:FEAT-WGT-001'),
+                                       ('ALP Widget Tests::WidgetHasCode', 'Alpha:FEAT-CRD-002a')}
     assert rels(graph, 'HAS_TEST') == {('Codeunit:ALP Widget Tests', 'ALP Widget Tests::WidgetIsCreated'),
                                        ('Codeunit:ALP Widget Tests', 'ALP Widget Tests::WidgetHasCode')}
 
