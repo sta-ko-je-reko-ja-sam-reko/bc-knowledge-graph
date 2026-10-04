@@ -31,3 +31,8 @@ products:
     repos:
       - name: bc-invoice-forge
         github: sta-ko-je-reko-ja-sam-reko/bc-invoice-forge
+  - name: Dataverse Integration Redesign
+    description: Microsoft's Dataverse, Dynamics 365 Sales and Field Service integration redesigned around swappable interfaces instead of hard-wired event subscribers.
+    repos:
+      - name: bc-dataverse-integration-redesign
+        github: sta-ko-je-reko-ja-sam-reko/bc-dataverse-integration-redesign
