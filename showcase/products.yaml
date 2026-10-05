@@ -36,6 +36,11 @@ products:
     repos:
       - name: bc-dataverse-integration-redesign
         github: sta-ko-je-reko-ja-sam-reko/bc-dataverse-integration-redesign
+  - name: Manufacturing Advanced
+    description: Guardrails and capabilities for Business Central manufacturing - release pre-flight checks, WIP control and G/L reconciliation, refresh protection, standard cost drift, planning insight, a shop floor terminal, engineering change orders and finite loading.
+    repos:
+      - name: manufacturing-advanced-bc
+        github: sta-ko-je-reko-ja-sam-reko/manufacturing-advanced-bc
 # Features whose src folder cannot be guessed from their name (nested folders allowed).
 feature_folders:
   "CRM:FEAT-ACT-001": Dataverse/Activities

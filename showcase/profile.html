@@ -71,7 +71,7 @@ projects and NAV reimplementations. I improve them with every project, and they 
 <p class="explain">Everything here is my own work. Every Business Central app ships with a test app of automated unit and integration tests. Open a project for details; the apps, with their live test counts, are also described under <a href="#products">The products</a>.</p>
 <!-- To add a project, copy one <details class="project-item"> block into the right group and update the count. -->
 <details class="project-group" open>
-<summary><h3>Business Central apps <span class="count">7</span></h3></summary>
+<summary><h3>Business Central apps <span class="count">8</span></h3></summary>
 <div class="project-list">
   <details class="project-item">
     <summary><b>Serbian Localization</b> <span class="pill muted">private</span> <span class="tagline">SEF e-invoicing, VAT and POPDV, e-Otpremnica, finance, banking</span></summary>
@@ -98,6 +98,18 @@ projects and NAV reimplementations. I improve them with every project, and they 
     page and its own Field Service reset. 19 defects found in Microsoft's code are documented, each with the test
     that shows the redesign avoids it.</p>
     <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/bc-dataverse-integration-redesign">bc-dataverse-integration-redesign</a>
+  </details>
+  <details class="project-item">
+    <summary><b>Manufacturing Advanced</b> <span class="pill ok">new</span> <span class="tagline">Guardrails and capabilities for Business Central manufacturing</span></summary>
+    <p>The manufacturing counterpart of Warehouse Advanced: guardrails on the standard production flows where Business
+    Central lets problems through, and capabilities it does not have. Release pre-flight checks an order before release
+    (dead routing links, flushing without tracking, missing bins, uncertified designs, flushing against warehouse
+    handling); WIP control finishes the orders that should have been finished and reconciles each order's WIP with the
+    G/L; refresh protection records and restores what a refresh overwrote; standard cost drift, planning insight, a shop
+    floor terminal, engineering change orders with approval workflows, and capacity-aware finite loading complete it.</p>
+    <p>Every module is switched off until enabled, swappable through interfaces, exposed as API pages and MCP
+    configurations with agent instructions, and covered by a test app.</p>
+    <a class="repo" href="https://github.com/sta-ko-je-reko-ja-sam-reko/manufacturing-advanced-bc">manufacturing-advanced-bc</a>
   </details>
   <details class="project-item">
     <summary><b>Warehouse Advanced</b> <span class="tagline">Advanced warehouse management for Business Central Cloud</span></summary>
